@@ -1,12 +1,12 @@
 package se.magnus.api.core.review;
 
 public class Review {
-    private final int productId;
-    private final int reviewId;
-    private final String author;
-    private final String subject;
-    private final String content;
-    private final String serviceAddress;
+    private int productId;
+    private int reviewId;
+    private String author;
+    private String subject;
+    private String content;
+    private String serviceAddress;
 
     public Review() {
         productId = 0;
@@ -17,13 +17,13 @@ public class Review {
         serviceAddress = null;
     }
 
-  public Review(
-    int productId,
-    int reviewId,
-    String author,
-    String subject,
-    String content,
-    String serviceAddress) {
+    public Review(
+            int productId,
+            int reviewId,
+            String author,
+            String subject,
+            String content,
+            String serviceAddress) {
 
         this.productId = productId;
         this.reviewId = reviewId;
@@ -55,5 +55,29 @@ public class Review {
 
     public String getServiceAddress() {
         return serviceAddress;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public void setReviewId(int reviewId) {
+        this.reviewId = reviewId;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 }

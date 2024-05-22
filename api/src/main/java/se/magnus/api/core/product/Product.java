@@ -36,4 +36,3 @@ public class Product {
         return serviceAddress;
     }
 }
-

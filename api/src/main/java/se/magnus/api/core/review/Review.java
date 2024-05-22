@@ -17,7 +17,14 @@ public class Review {
         serviceAddress = null;
     }
 
-    public Review(int productId, int reviewId, String author, String subject, String content, String serviceAddress) {
+  public Review(
+    int productId,
+    int reviewId,
+    String author,
+    String subject,
+    String content,
+    String serviceAddress) {
+
         this.productId = productId;
         this.reviewId = reviewId;
         this.author = author;

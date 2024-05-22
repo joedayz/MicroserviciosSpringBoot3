@@ -1,15 +1,10 @@
 package se.magnus.api.composite.product;
 
 public class RecommendationSummary {
+
     private final int recommendationId;
     private final String author;
     private final int rate;
-
-    public RecommendationSummary() {
-        recommendationId = 0;
-        author = null;
-        rate = 0;
-    }
 
     public RecommendationSummary(int recommendationId, String author, int rate) {
         this.recommendationId = recommendationId;

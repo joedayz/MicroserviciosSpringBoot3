@@ -6,12 +6,6 @@ public class ReviewSummary {
     private final String author;
     private final String subject;
 
-    public ReviewSummary() {
-        reviewId = 0;
-        author = null;
-        subject = null;
-    }
-
     public ReviewSummary(int reviewId, String author, String subject) {
         this.reviewId = reviewId;
         this.author = author;

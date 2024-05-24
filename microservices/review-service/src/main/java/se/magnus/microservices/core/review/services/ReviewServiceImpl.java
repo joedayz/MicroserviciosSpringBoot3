@@ -32,20 +32,38 @@ public class ReviewServiceImpl implements ReviewService {
   }
 
   @Override
+  public Review createReview(Review body) {
+    try {
+      ReviewEntity entity = mapper.apiToEntity(body);
+      ReviewEntity newEntity = repository.save(entity);
+
+      LOG.debug("createReview: created a review entity: {}/{}", body.getProductId(), body.getReviewId());
+      return mapper.entityToApi(newEntity);
+
+    } catch (DataIntegrityViolationException dive) {
+      throw new InvalidInputException("Duplicate key, Product Id: " + body.getProductId() + ", Review Id:" + body.getReviewId());
+    }
+  }
+
+  @Override
   public List<Review> getReviews(int productId) {
 
     if (productId < 1) {
       throw new InvalidInputException("Invalid productId: " + productId);
     }
-
-    List<ReviewEntity> entityList = repository.findByProductId(productId); //lo trae de la bd
-    List<Review> list = mapper.entityListToApiList(entityList); //lo mapea a la entidad
-
+    
+    List<ReviewEntity> entityList = repository.findByProductId(productId);
+    List<Review> list = mapper.entityListToApiList(entityList);
     list.forEach(e -> e.setServiceAddress(serviceUtil.getServiceAddress()));
 
-
-    LOG.debug("getReviews response size: {}", list.size());
+    LOG.debug("getReviews: response size: {}", list.size());
 
     return list;
+  }
+
+  @Override
+  public void deleteReviews(int productId) {
+    LOG.debug("deleteReviews: tries to delete reviews for the product with productId: {}", productId);
+    repository.deleteAll(repository.findByProductId(productId));
   }
 }

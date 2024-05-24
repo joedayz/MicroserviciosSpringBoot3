@@ -3,9 +3,11 @@ package se.magnus.microservices.composite.product.services;
 import static org.springframework.http.HttpMethod.GET;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +76,24 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
 
+    @Override
+    public Recommendation createRecommendation(Recommendation body) {
+
+        try {
+            String url = recommendationServiceUrl;
+            LOG.debug("Will post a new recommendation to URL: {}", url);
+
+            Recommendation recommendation = restTemplate.postForObject(url, body, Recommendation.class);
+            LOG.debug("Created a recommendation with id: {}", recommendation.getProductId());
+
+            return recommendation;
+
+        } catch (HttpClientErrorException ex) {
+            throw handleHttpClientException(ex);
+        }
+    }
+
+    @Override
     public List<Recommendation> getRecommendations(int productId) {
 
         try {
@@ -95,6 +115,19 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     }
 
     @Override
+    public void deleteRecommendations(int productId) {
+        try {
+            String url = recommendationServiceUrl + "?productId=" + productId;
+            LOG.debug("Will call the deleteRecommendations API on URL: {}", url);
+
+            restTemplate.delete(url);
+
+        } catch (HttpClientErrorException ex) {
+            throw handleHttpClientException(ex);
+        }
+    }
+
+    @Override
     public Review createReview(Review body) {
 
         try {
@@ -102,7 +135,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             LOG.debug("Will post a new review to URL: {}", url);
 
             Review review = restTemplate.postForObject(url, body, Review.class);
-      LOG.debug("Created a review with id: {}", review.getProductId());
+            LOG.debug("Created a review with id: {}", review.getProductId());
 
             return review;
 
@@ -111,15 +144,16 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         }
     }
 
-  @Override
+    @Override
     public List<Review> getReviews(int productId) {
 
         try {
-      String url = reviewServiceUrl + "?productId=" + productId;
+            String url = reviewServiceUrl + "?productId=" + productId;
 
-      LOG.debug("Will call the getReviews API on URL: {}", url);
+            LOG.debug("Will call the getReviews API on URL: {}", url);
             List<Review> reviews = restTemplate
-        .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {})
+                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {
+                    })
                     .getBody();
 
             LOG.debug("Found {} reviews for a product with id: {}", reviews.size(), productId);
@@ -133,13 +167,13 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
     @Override
     public void deleteReviews(int productId) {
-    try {
+        try {
             String url = reviewServiceUrl + "?productId=" + productId;
             LOG.debug("Will call the deleteReviews API on URL: {}", url);
 
             restTemplate.delete(url);
 
-    } catch (HttpClientErrorException ex) {
+        } catch (HttpClientErrorException ex) {
             throw handleHttpClientException(ex);
         }
     }
@@ -148,10 +182,10 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         switch (HttpStatus.resolve(ex.getStatusCode().value())) {
 
             case NOT_FOUND:
-        return new NotFoundException(getErrorMessage(ex));
+                return new NotFoundException(getErrorMessage(ex));
 
             case UNPROCESSABLE_ENTITY:
-        return new InvalidInputException(getErrorMessage(ex));
+                return new InvalidInputException(getErrorMessage(ex));
 
             default:
                 LOG.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.getStatusCode());

@@ -117,7 +117,6 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
                 .jsonPath("$.message").isEqualTo("Invalid productId: " + productIdInvalid);
     }
 
-
     private WebTestClient.BodyContentSpec getAndVerifyReviewsByProductId(int productId, HttpStatus expectedStatus) {
         return getAndVerifyReviewsByProductId("?productId=" + productId, expectedStatus);
     }

@@ -3,11 +3,9 @@ package se.magnus.microservices.composite.product.services;
 import static org.springframework.http.HttpMethod.GET;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +56,29 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
         reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review";
     }
 
+  @Override
+  public Product createProduct(Product body) {
+
+    try {
+      String url = productServiceUrl;
+      LOG.debug("Will post a new product to URL: {}", url);
+
+      Product product = restTemplate.postForObject(url, body, Product.class);
+      LOG.debug("Created a product with id: {}", product.getProductId());
+
+      return product;
+
+    } catch (HttpClientErrorException ex) {
+      throw handleHttpClientException(ex);
+    }
+  }
+
+  @Override
     public Product getProduct(int productId) {
 
         try {
-            String url = productServiceUrl + productId;
-            LOG.debug("Will call getProduct API on URL: {}", url);
+      String url = productServiceUrl + "/" + productId;
+      LOG.debug("Will call the getProduct API on URL: {}", url);
 
             Product product = restTemplate.getForObject(url, Product.class);
             LOG.debug("Found a product with id: {}", product.getProductId());
@@ -70,11 +86,22 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
             return product;
 
         } catch (HttpClientErrorException ex) {
-
             throw handleHttpClientException(ex);
         }
     }
 
+  @Override
+  public void deleteProduct(int productId) {
+    try {
+      String url = productServiceUrl + "/" + productId;
+      LOG.debug("Will call the deleteProduct API on URL: {}", url);
+
+      restTemplate.delete(url);
+
+    } catch (HttpClientErrorException ex) {
+      throw handleHttpClientException(ex);
+    }
+  }
 
     @Override
     public Recommendation createRecommendation(Recommendation body) {
@@ -97,12 +124,11 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     public List<Recommendation> getRecommendations(int productId) {
 
         try {
-            String url = recommendationServiceUrl + productId;
+      String url = recommendationServiceUrl + "?productId=" + productId;
 
-            LOG.debug("Will call getRecommendations API on URL: {}", url);
+      LOG.debug("Will call the getRecommendations API on URL: {}", url);
             List<Recommendation> recommendations = restTemplate
-                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Recommendation>>() {
-                    })
+        .exchange(url, GET, null, new ParameterizedTypeReference<List<Recommendation>>() {})
                     .getBody();
 
             LOG.debug("Found {} recommendations for a product with id: {}", recommendations.size(), productId);
@@ -152,8 +178,7 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
 
             LOG.debug("Will call the getReviews API on URL: {}", url);
             List<Review> reviews = restTemplate
-                    .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {
-                    })
+        .exchange(url, GET, null, new ParameterizedTypeReference<List<Review>>() {})
                     .getBody();
 
             LOG.debug("Found {} reviews for a product with id: {}", reviews.size(), productId);

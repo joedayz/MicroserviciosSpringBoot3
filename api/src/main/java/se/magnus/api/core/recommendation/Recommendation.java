@@ -57,7 +57,6 @@ public class Recommendation {
         return serviceAddress;
     }
 
-
     public void setProductId(int productId) {
         this.productId = productId;
     }

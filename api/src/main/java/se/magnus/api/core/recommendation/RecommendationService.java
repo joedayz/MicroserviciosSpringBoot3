@@ -1,7 +1,6 @@
 package se.magnus.api.core.recommendation;
 
 import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
 
 public interface RecommendationService {

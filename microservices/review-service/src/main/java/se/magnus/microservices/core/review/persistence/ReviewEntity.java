@@ -1,5 +1,7 @@
 package se.magnus.microservices.core.review.persistence;
 
+import static java.lang.String.format;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +30,11 @@ public class ReviewEntity {
         this.subject = subject;
         this.content = content;
     }
+
+  @Override
+  public String toString() {
+    return format("ReviewEntity: %s/%d", productId, reviewId);
+  }
 
     public int getId() {
         return id;

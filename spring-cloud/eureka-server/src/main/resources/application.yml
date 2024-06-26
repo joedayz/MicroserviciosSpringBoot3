@@ -1,21 +1,19 @@
-server:
-  port: 8761
+spring.config.import: "configserver:"
 
-app:
-  eureka-username: u
-  eureka-password: p
+spring:
+  application.name: eureka-server
+  cloud.config:
+    failFast: true
+    retry:
+      initialInterval: 3000
+      multiplier: 1.3
+      maxInterval: 10000
+      maxAttempts: 20
+    uri: http://localhost:8888
+    username: ${CONFIG_SERVER_USR}
+    password: ${CONFIG_SERVER_PWD}
 
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    registerWithEureka: false
-    fetchRegistry: false
-    serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-  # from: https://github.com/spring-cloud-samples/eureka/blob/master/src/main/resources/application.yml
-  server:
-    waitTimeInMsWhenSyncEmpty: 0
-    response-cache-update-interval-ms: 5000
+---
+spring.config.activate.on-profile: docker
 
-management.endpoints.web.exposure.include: "*"
+spring.cloud.config.uri: http://config-server:8888

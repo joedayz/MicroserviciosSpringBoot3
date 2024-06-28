@@ -9,6 +9,7 @@ version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '17'
 ext {
     springCloudVersion = "2022.0.1"
+    resilience4jVersion = "2.0.2"
 }
 repositories {
 	mavenCentral()
@@ -32,6 +33,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2'
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
+    implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
     // To avoid the following error message on Apple silicon (for details, see https://github.com/netty/netty/issues/11693):
     // Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS.
@@ -41,9 +45,11 @@ dependencies {
     testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'
 	testImplementation 'io.projectreactor:reactor-test'
 }
+
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.github.resilience4j:resilience4j-bom:${resilience4jVersion}"
     }
 }
 

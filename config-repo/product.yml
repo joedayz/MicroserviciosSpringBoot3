@@ -30,7 +30,7 @@ spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    se.magnus: INFO
     org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
 
 ---

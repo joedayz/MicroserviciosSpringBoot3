@@ -5,6 +5,7 @@ import static java.util.logging.Level.FINE;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import se.magnus.api.composite.product.*;
 import se.magnus.api.core.product.Product;
 import se.magnus.api.core.recommendation.Recommendation;
 import se.magnus.api.core.review.Review;
+import se.magnus.microservices.composite.product.services.tracing.ObservationUtil;
 import se.magnus.util.http.ServiceUtil;
 
 @RestController
@@ -30,17 +32,22 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   private final SecurityContext nullSecCtx = new SecurityContextImpl();
 
     private final ServiceUtil serviceUtil;
+  private final ObservationUtil observationUtil;
     private final ProductCompositeIntegration integration;
 
     @Autowired
-    public ProductCompositeServiceImpl(ServiceUtil serviceUtil, ProductCompositeIntegration integration) {
+  public ProductCompositeServiceImpl(ServiceUtil serviceUtil, ObservationUtil observationUtil, ProductCompositeIntegration integration) {
         this.serviceUtil = serviceUtil;
+    this.observationUtil = observationUtil;
         this.integration = integration;
     }
 
     @Override
     public Mono<Void> createProduct(ProductAggregate body) {
+    return observationWithProductInfo(body.getProductId(), () -> createProductInternal(body));
+  }
 
+  private Mono<Void> createProductInternal(ProductAggregate body) {
         try {
 
             List<Mono> monoList = new ArrayList<>();
@@ -80,7 +87,10 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     @Override
   public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
+    return observationWithProductInfo(productId, () -> getProductInternal(productId, delay, faultPercent));
+  }
 
+  private Mono<ProductAggregate> getProductInternal(int productId, int delay, int faultPercent) {
     LOG.info("Will get composite product info for product.id={}", productId);
         return Mono.zip(
       values -> createProductAggregate(
@@ -95,6 +105,10 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     @Override
     public Mono<Void> deleteProduct(int productId) {
+    return observationWithProductInfo(productId, () -> deleteProductInternal(productId));
+  }
+
+  private Mono<Void> deleteProductInternal(int productId) {
         try {
 
       LOG.info("Will delete a product aggregate for product.id: {}", productId);
@@ -112,6 +126,15 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             throw re;
         }
     }
+
+  private <T> T observationWithProductInfo(int productInfo, Supplier<T> supplier) {
+    return observationUtil.observe(
+      "composite observation",
+      "product info",
+      "productId",
+      String.valueOf(productInfo),
+      supplier);
+  }
 
   private ProductAggregate createProductAggregate(
     SecurityContext sc, Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {

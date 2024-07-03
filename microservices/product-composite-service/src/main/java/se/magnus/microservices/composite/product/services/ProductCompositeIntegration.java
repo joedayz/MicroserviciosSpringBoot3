@@ -58,12 +58,12 @@ public class ProductCompositeIntegration implements ProductService, Recommendati
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
-    WebClient.Builder webClientBuilder,
+    WebClient webClient,
             ObjectMapper mapper,
     StreamBridge streamBridge,
     ServiceUtil serviceUtil
     ) {
-    this.webClient = webClientBuilder.build();
+    this.webClient = webClient;
 
         this.publishEventScheduler = publishEventScheduler;
         this.mapper = mapper;

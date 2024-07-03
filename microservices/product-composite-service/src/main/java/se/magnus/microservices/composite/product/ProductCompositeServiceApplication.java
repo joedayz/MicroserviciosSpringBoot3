@@ -11,10 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Hooks;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -78,13 +79,16 @@ public class ProductCompositeServiceApplication {
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
     }
 
+  @Autowired
+  private ReactorLoadBalancerExchangeFilterFunction lbFunction;
+
     @Bean
-    @LoadBalanced
-    public WebClient.Builder loadBalancedWebClientBuilder() {
-        return WebClient.builder();
+  WebClient webClient(WebClient.Builder builder) {
+    return builder.filter(lbFunction).build();
     }
 
     public static void main(String[] args) {
+    Hooks.enableAutomaticContextPropagation();
         SpringApplication.run(ProductCompositeServiceApplication.class, args);
     }
 

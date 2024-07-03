@@ -129,8 +129,12 @@ resilience4j.circuitbreaker:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
+    se.magnus: INFO
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: INFO
+
+# To see tracing headers, uncomment the following two lines and restart the product-composite service
+# spring.codec.log-request-details: true
+# logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions: TRACE
 
 ---
 spring.config.activate.on-profile: docker
